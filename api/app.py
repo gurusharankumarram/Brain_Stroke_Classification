@@ -6,7 +6,6 @@ from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
-from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
@@ -51,11 +50,10 @@ svc = SVC(probability=True, random_state=0)                         # Support Ve
 knn = KNeighborsClassifier()                                        # KNeighborsClassifier
 lr = LogisticRegression(max_iter=1000, random_state=0)              # Logistic Regression
 gnb = GaussianNB()                                                  # Naive Bayes
-xgb = XGBClassifier(random_state=0)                                 # XGBoost
 
 # Create a voting classifier with the models
 voting_clf = VotingClassifier(
-    estimators=[('rf', rf), ('gb', gb), ('svc', svc), ('knn', knn), ('lr', lr), ('gnb', gnb), ('xgb', xgb)],
+    estimators=[('rf', rf), ('gb', gb), ('svc', svc), ('knn', knn), ('lr', lr), ('gnb', gnb)],
     voting='soft'
 )
 
