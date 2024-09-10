@@ -1,12 +1,17 @@
 from flask import Flask, request, jsonify
 import numpy as np
 import pandas as pd
+import os
+from dotenv import load_dotenv
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, confusion_matrix
 from sklearn.model_selection import train_test_split
+
+# Load environment variables from the .env file
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -96,11 +101,22 @@ for name, model in models.items():
         "train_npv": train_npv
     }
 
+# Retrieve the validation key from the .env file
+VALIDATE_KEY = os.getenv('VALIDATE_KEY')
+
+# Function to validate API key
+def validate_key(key):
+    return key == VALIDATE_KEY
+
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get input data from the request
+        # Check for validate_key in request
         data = request.json
+        if not validate_key(data.get('validate_key')):
+            return jsonify({'error': 'Invalid validation key'}), 403
+
+        # Get input data from the request
         gender = float(data['gender'])
         age = float(data['age'])
         hypertension = int(data['hypertension'])
@@ -134,9 +150,19 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@app.route('/accuracy', methods=['GET'])
+@app.route('/accuracy', methods=['POST'])
 def accuracy():
-    return jsonify(metrics)
+    try:
+        # Check for validate_key in request
+        data = request.json
+        if not validate_key(data.get('validate_key')):
+            return jsonify({'error': 'Invalid validation key'}), 403
+
+        # Return the metrics
+        return jsonify(metrics)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
